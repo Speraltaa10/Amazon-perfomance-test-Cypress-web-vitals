@@ -1,0 +1,36 @@
+{
+  "lighthouse": {
+    "metrics": {
+      "performance": {
+        "threshold": 50,
+        "status": "Fail"
+      },
+      "accessibility": {
+        "threshold": 50,
+        "status": "Fail"
+      },
+      "bestPractices": {
+        "threshold": 50,
+        "status": "Fail"
+      },
+      "seo": {
+        "threshold": 50,
+        "status": "Fail"
+      }
+    }
+  },
+  "webVitals": {
+    "LCP": {
+      "threshold": 4000,
+      "status": "Fail"
+    },
+    "FCP": {
+      "threshold": 3000,
+      "status": "Fail"
+    },
+    "TTFB": {
+      "threshold": 1000,
+      "status": "Fail"
+    }
+  }
+}

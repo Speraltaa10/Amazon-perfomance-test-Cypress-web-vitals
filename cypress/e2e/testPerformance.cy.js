@@ -1,39 +1,14 @@
 import "cypress-web-vitals";
 import "@cypress-audit/lighthouse/commands";
 
-// Definición de la función removeCircularReferences
-function removeCircularReferences(obj) {
-  const seen = new WeakSet();
-
-  function clean(obj) {
-    if (obj && typeof obj === "object") {
-      if (seen.has(obj)) {
-        return undefined; // Eliminar la referencia circular
-      }
-      seen.add(obj);
-
-      // Crear un nuevo objeto limpio sin modificar el original
-      const newObj = Array.isArray(obj) ? [] : {};
-      Object.keys(obj).forEach((key) => {
-        try {
-          newObj[key] = clean(obj[key]); // Limpiar recursivamente
-        } catch (e) {
-          // Omitir propiedades que no puedan ser accedidas
-          console.warn(`Omitting property ${key}: ${e.message}`);
-        }
-      });
-      return newObj;
-    }
-    return obj; // Devolver valores primitivos como están
-  }
-
-  return clean(obj);
-}
-
-// Prueba Cypress
 describe("Capture metrics", () => {
   it("saves Lighthouse and Web Vitals metrics to a JSON file", () => {
-    const metrics = {}; // Objeto para almacenar las métricas
+    const metrics = {
+      lighthouse: {
+        metrics: {},
+      },
+      webVitals: {},
+    };
 
     // Capturar métricas de Lighthouse
     cy.task("lighthouse", {
@@ -44,28 +19,53 @@ describe("Capture metrics", () => {
         "best-practices": 50,
         seo: 50,
       },
-    })
-      .then((lighthouseResults) => {
-        // Limpiar los resultados de Lighthouse
-        const cleanLighthouseResults = removeCircularReferences(lighthouseResults);
-        metrics.lighthouse = cleanLighthouseResults;
-      })
-      .then(() => {
-        // Capturar métricas de Web Vitals después de Lighthouse
-        cy.visit("https://www.amazon.com");
-        cy.vitals({
-        }).then((webVitalsResults) => {
-          // Limpiar los resultados de Web Vitals
-          const cleanWebVitalsResults = removeCircularReferences(webVitalsResults);
-          metrics.webVitals = cleanWebVitalsResults;
-        });
-      })
-      .then(() => {
-        // Escribir las métricas en un archivo JSON
-        cy.writeFile("metrics-results.json", metrics);
-        cy.log("Metrics saved to metrics-results.json");
+    }).then((lighthouseResults) => {
+      // Reorganizar métricas de Lighthouse
+      const categories = ["performance", "accessibility", "bestPractices", "seo"];
+      categories.forEach((category) => {
+        const score = lighthouseResults[category];
+        const threshold = 50; // Ajusta según tu configuración
+        metrics.lighthouse.metrics[category] = {
+          score,
+          threshold,
+          status: score >= threshold ? "Pass" : "Fail",
+        };
       });
+    });
+
+    // Capturar métricas de Web Vitals
+    cy.visit("https://www.amazon.com");
+    cy.vitals({
+      thresholds: {
+        LCP: 4000, // Ajustar umbral de Largest Contentful Paint (ms)
+        FCP: 3000, // Ajustar umbral de First Contentful Paint (ms)
+        TTFB: 1000, // Ajustar umbral de Time to First Byte (ms)
+      },
+    }).then((webVitalsResults) => {
+      // Reorganizar métricas de Web Vitals
+      metrics.webVitals = {
+        LCP: {
+          value: webVitalsResults.LCP,
+          threshold: 4000,
+          status: webVitalsResults.LCP <= 4000 ? "Pass" : "Fail",
+        },
+        FCP: {
+          value: webVitalsResults.FCP,
+          threshold: 3000,
+          status: webVitalsResults.FCP <= 3000 ? "Pass" : "Fail",
+        },
+        TTFB: {
+          value: webVitalsResults.TTFB,
+          threshold: 1000,
+          status: webVitalsResults.TTFB <= 1000 ? "Pass" : "Fail",
+        },
+      };
+    });
+
+    // Guardar las métricas en un archivo JSON
+    cy.then(() => {
+      cy.writeFile("metrics-results.json", metrics);
+      cy.log("Metrics saved to metrics-results.json");
+    });
   });
 });
-
-
