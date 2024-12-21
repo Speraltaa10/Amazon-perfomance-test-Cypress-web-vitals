@@ -1,0 +1,26 @@
+[
+  {
+    "viewport": "desktop",
+    "date": "2024-12-21T17:17:28.368Z",
+    "firstContentfulPaint_FCP": 2091.54,
+    "largestContentfulPaint_LCP": 2351.4350000000004,
+    "cumulativeLayoutShift_CLS": 0.022944565928716222,
+    "speedIndex_SI": 4796.7442924442075
+  },
+  {
+    "viewport": "mobile",
+    "date": "2024-12-21T17:17:45.546Z",
+    "firstContentfulPaint_FCP": 1241.9825,
+    "largestContentfulPaint_LCP": 2072.965,
+    "cumulativeLayoutShift_CLS": 0.05365567798381558,
+    "speedIndex_SI": 3667.950907913939
+  },
+  {
+    "viewport": "desktop",
+    "date": "2024-12-21T18:27:25.086Z",
+    "firstContentfulPaint_FCP": 2086.611,
+    "largestContentfulPaint_LCP": 2398.506,
+    "cumulativeLayoutShift_CLS": 0,
+    "speedIndex_SI": 9093.963639570955
+  }
+]
